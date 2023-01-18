@@ -1,0 +1,5 @@
+name: Codimth Batch
+type: module
+description: An example how to use batch api in drupal 8 & 9.
+package: Codimth
+core_version_requirement: ^8 || ^9

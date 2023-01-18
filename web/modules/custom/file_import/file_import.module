@@ -1,0 +1,81 @@
+<?php
+
+use Drupal\node\Entity\Node;
+
+function create_nodes($rows, &$context)
+{
+    $message = 'Creating All Nodes...';
+    $results = sizeof($rows);
+    // $rows = array();
+    // print "<pre>";
+    // var_dump($rows);
+    //     exit;
+
+    // $rows = reset($rows);
+    
+    foreach ($rows as $row) {
+
+        $values = \Drupal::entityQuery('node')->condition('title', $row[0])->execute();
+        $node_not_exists = empty($values);
+        // var_dump($row);
+        // exit;
+        
+        if ($node_not_exists) {
+            /*if node does not exist create new node*/
+
+            $term = \Drupal::entityTypeManager()
+                ->getStorage('taxonomy_term')
+                ->loadByProperties(['name' => $row[1]]);
+
+            $node = \Drupal::entityTypeManager()->getStorage('node')->create([
+                'type'       => 'news', //===here news is the content type mechine name
+                'title'      => $row[0],
+                'field_category'   => $term,
+                'field_description' => $row[2],
+                'field_images' => $row[3],
+            ]);
+
+            $context['message'] = $message;
+            $context['results'] = $results;
+
+            $node->save();
+        } else {
+
+            $nid = reset($values);
+
+            $node = \Drupal\node\Entity\Node::load($nid);
+
+            $term = \Drupal::entityTypeManager()
+                ->getStorage('taxonomy_term')
+                ->loadByProperties(['name' => $row[1]]);
+
+            $node->setTitle($row[0]);
+            $node->set("field_category", $term);
+            $node->set("field_description", $row[2]);
+            $node->set("field_images", $row[3]);
+
+            $context['message'] = $message;
+            $context['results'] = $results;
+
+            $node->save();
+        }
+
+        // \Drupal::messenger()->addMessage('File imported Successfully!');
+    }
+}
+
+function completion($success, $results, $operations)
+{
+    // The 'success' parameter means no fatal PHP errors were detected. All
+    // other error management should be handled using 'results'.
+    if ($success) {
+        $message = \Drupal::translation()->formatPlural(
+            count($results),
+            'Data post processed.',
+            '@count nodes'
+        );
+    } else {
+        $message = 'Finished with an error.';
+    }
+    \Drupal::messenger()->addStatus($message);
+}

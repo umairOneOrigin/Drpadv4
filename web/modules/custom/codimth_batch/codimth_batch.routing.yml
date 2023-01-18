@@ -1,0 +1,7 @@
+codimth_batch.form:
+  path: '/codimth_batch'
+  defaults:
+    _form: '\Drupal\codimth_batch\Form\CodimthBatchForm'
+    _title: 'Demo of batch processing'
+  requirements:
+    _permission: 'access content'

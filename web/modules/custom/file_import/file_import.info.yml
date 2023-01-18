@@ -1,0 +1,5 @@
+name: Import File Module
+description: 'Form to upload files'
+type: module
+package: Example
+core_version_requirement: ^8 || ^9 
